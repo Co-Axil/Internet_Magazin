@@ -16,11 +16,19 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = '/static/'
 
+# STATIC_ROOT ni loyihangizning asosiy papkasida "staticfiles" deb belgilash
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Agar statik fayllarni loyihangizning alohida kataloglaridan yig‘moqchi bo‘lsangiz
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Agar mavjud bo‘lsa
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+]
 SECRET_KEY = 'django-insecure-a5*d#_t90hunfb!#xopabed5r-1ff#ge^sa_)y&kspke^&i-a('
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,7 +40,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'admin_tabler.apps.AdminTablerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'onlinemarket',
     'users',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +67,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,3 +138,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = '/'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
