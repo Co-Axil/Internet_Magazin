@@ -1,0 +1,113 @@
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    container_name: django
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+    env_file:
+      - ./.envs/.local/.env
+      - ./.envs/.local/.db
+      - ./.envs/.local/.flower
+      - ./.envs/.local/.rabbitmq
+    ports:
+      - '8000:8000'
+    command: /start-django
+    networks:
+      - site_network
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/general/postgres/Dockerfile
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/backups
+    env_file:
+      - ./.envs/.local/.db
+    networks:
+      - site_network
+    restart: always
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    expose:
+      - 15672  # Management port
+      - 5672   # AMQP port
+    env_file:
+      - ./.envs/.local/.rabbitmq
+    networks:
+      - site_network
+    restart: always
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis
+    expose:
+      - 6379
+    volumes:
+      - redis_data:/var/lib/redis/data/
+    command: redis-server --requirepass "142536475869"
+    networks:
+      - site_network
+    restart: always
+
+
+  celeryworker:
+    <<: *django
+    container_name: celeryworker
+    command: /start-celeryworker
+    depends_on:
+      - rabbitmq
+    ports: []
+    networks:
+      - site_network
+#    restart: always
+
+  celerybeat:
+    <<: *django
+    container_name: celerybeat
+    command: /start-celerybeat
+    depends_on:
+      - rabbitmq
+    ports: []
+    networks:
+      - site_network
+#    restart: always
+
+  celeryflower:
+    <<: *django
+    container_name: celeryflower
+    command: /start-celeryflower
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./.envs/.local/.flower
+    networks:
+      - site_network
+#    restart: always
+
+
+volumes:
+  static_volume: {}
+  redis_data: {}
+  postgres_data: {}
+
+networks:
+  site_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.188.0/24

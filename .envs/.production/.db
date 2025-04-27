@@ -1,0 +1,5 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=gelCCrzxKNS5eTtWQFWbFdfwZffNOVoNZDlpK8U40QjQZvMCqsEmPpHucjKTdQk3
+POSTGRES_DB=test_db
